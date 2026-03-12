@@ -1,8 +1,9 @@
 package com.maxkachinkin.smartunittests.domain.start.step5.finish
 
+import com.maxkachinkin.smartunittests.common.domain.model.Movie
 import com.maxkachinkin.smartunittests.domain.start.step5.ToggleWatchlistUseCaseImpl
 import com.maxkachinkin.smartunittests.testutil.FakeMovieRepository
-import com.maxkachinkin.smartunittests.testutil.TestMovieData
+import com.maxkachinkin.smartunittests.testutil.TestMovieData.MOVIE_1
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
@@ -10,14 +11,7 @@ import org.junit.Before
 import org.junit.Test
 
 /**
- * TEST-FIRST EXAMPLE: These tests are written BEFORE the implementation.
- *
- * The tests define the expected behavior:
- * 1. If not in watchlist -> add to watchlist
- * 2. If in watchlist -> remove from watchlist
- *
- * The implementation in ToggleWatchlistUseCaseImpl starts as TODO().
- * Fill it in to make these tests pass.
+ * TEST-FIRST EXAMPLE
  */
 class ToggleWatchlistUseCaseTest {
 
@@ -27,28 +21,39 @@ class ToggleWatchlistUseCaseTest {
     @Before
     fun setup() {
         repository = FakeMovieRepository()
-        sut = ToggleWatchlistUseCaseImpl(repository)
+
+        //sut = ToggleWatchlistUseCaseImpl(repository)
+        sut = ToggleWatchlistUseCaseImpl()
     }
 
     @Test
     fun `adds movie to watchlist when not currently in watchlist`() = runTest {
-        repository.setMovies(listOf(TestMovieData.MOVIE_1))
+        movieNotInWatchList(MOVIE_1)
 
-        sut(movieId = 1, currentIsInWatchlist = false)
+        sut.invoke(movieId = MOVIE_1.id)
 
-        val movie = repository.getMovieDetails(1)
+        val movie = getResultedMovie(MOVIE_1)
         assertTrue(movie.isInWatchlist)
     }
 
     @Test
     fun `removes movie from watchlist when currently in watchlist`() = runTest {
-        repository.setMovies(
-            listOf(TestMovieData.MOVIE_1.copy(isInWatchlist = true))
-        )
+        movieInWatchList(MOVIE_1)
 
-        sut(movieId = 1, currentIsInWatchlist = true)
+        sut.invoke(movieId = MOVIE_1.id)
 
-        val movie = repository.getMovieDetails(1)
+        val movie = getResultedMovie(MOVIE_1)
         assertFalse(movie.isInWatchlist)
+    }
+
+    private fun movieInWatchList(movie: Movie) {
+        repository.setMovies(listOf(movie.copy(isInWatchlist = true)))
+    }
+
+    private suspend fun getResultedMovie(movie: Movie): Movie =
+        repository.getMovieDetails(movie.id)
+
+    private fun movieNotInWatchList(movie: Movie) {
+        repository.setMovies(listOf(movie.copy(isInWatchlist = false)))
     }
 }

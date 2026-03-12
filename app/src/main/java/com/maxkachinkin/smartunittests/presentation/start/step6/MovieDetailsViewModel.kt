@@ -10,8 +10,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 /**
- * TEST-FIRST EXAMPLE: This ViewModel starts empty.
- * Write tests first, then implement to make them pass.
+ * TEST-FIRST EXAMPLE
  */
 class MovieDetailsViewModel(
     private val movieId: Int,
@@ -32,11 +31,11 @@ class MovieDetailsViewModel(
         TODO("Toggle favorite and reload")
     }
 
-    fun onMarkAsWatched(currentIsWatched: Boolean) {
+    fun onMarkAsWatched() {
         TODO("Mark as watched and reload")
     }
 
-    fun onToggleWatchlist(currentIsInWatchlist: Boolean) {
+    fun onToggleWatchlist() {
         TODO("Toggle watchlist and reload")
     }
 }

@@ -1,5 +1,6 @@
 package com.maxkachinkin.smartunittests.presentation.start.step6.finish
 
+import com.maxkachinkin.smartunittests.common.domain.model.Movie
 import com.maxkachinkin.smartunittests.domain.finish.MarkAsWatchedUseCaseImpl
 import com.maxkachinkin.smartunittests.domain.finish.ToggleFavoriteUseCaseImpl
 import com.maxkachinkin.smartunittests.domain.finish.ToggleWatchlistUseCaseImpl
@@ -7,28 +8,19 @@ import com.maxkachinkin.smartunittests.presentation.start.step6.MovieDetailsScre
 import com.maxkachinkin.smartunittests.presentation.start.step6.MovieDetailsViewModel
 import com.maxkachinkin.smartunittests.testutil.FakeMovieRepository
 import com.maxkachinkin.smartunittests.testutil.MainDispatcherRule
-import com.maxkachinkin.smartunittests.testutil.TestMovieData
+import com.maxkachinkin.smartunittests.testutil.TestMovieData.MOVIE_1
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
+import org.junit.Assert.assertFalse
 import org.junit.Assert.assertTrue
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
 /**
- * TEST-FIRST EXAMPLE: These tests are written BEFORE the ViewModel implementation.
- *
- * The tests define expected behavior:
- * 1. Loads movie details on init
- * 2. Shows error when loading fails
- * 3. Toggles favorite
- * 4. Marks as watched (removes from watchlist)
- * 5. Toggles watchlist
- *
- * Implementation in MovieDetailsViewModel starts as TODO().
- * Fill it in to make these tests pass.
+ * TEST-FIRST EXAMPLE
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 class MovieDetailsViewModelTest {
@@ -43,7 +35,7 @@ class MovieDetailsViewModelTest {
         repository = FakeMovieRepository()
     }
 
-    private fun createViewModel(movieId: Int = 1): MovieDetailsViewModel {
+    private fun createViewModel(movieId: Int = MOVIE_1.id): MovieDetailsViewModel {
         return MovieDetailsViewModel(
             movieId = movieId,
             movieRepository = repository,
@@ -55,21 +47,20 @@ class MovieDetailsViewModelTest {
 
     @Test
     fun `loads movie details on init`() = runTest {
-        repository.setMovies(listOf(TestMovieData.MOVIE_1))
+        movieExists(MOVIE_1)
 
-        val sut = createViewModel(movieId = 1)
+        val sut = createViewModel()
         advanceUntilIdle()
 
-        val state = sut.state.value
-        assertTrue(state is MovieDetailsScreenState.Content)
-        assertEquals("Action Movie", (state as MovieDetailsScreenState.Content).movie.title)
+        val movie = resultMovie(sut)
+        assertEquals("Action Movie", movie.title)
     }
 
     @Test
     fun `shows error when loading fails`() = runTest {
-        repository.setShouldThrow(RuntimeException("Network error"))
+        repositoryThrows(RuntimeException("Network error"))
 
-        val sut = createViewModel(movieId = 1)
+        val sut = createViewModel()
         advanceUntilIdle()
 
         val state = sut.state.value
@@ -78,43 +69,56 @@ class MovieDetailsViewModelTest {
 
     @Test
     fun `toggles favorite`() = runTest {
-        repository.setMovies(listOf(TestMovieData.MOVIE_1))
-        val sut = createViewModel(movieId = 1)
+        movieExists(MOVIE_1)
+        val sut = createViewModel()
         advanceUntilIdle()
 
         sut.onToggleFavorite(currentIsFavorite = false)
         advanceUntilIdle()
 
-        val state = sut.state.value as MovieDetailsScreenState.Content
-        assertTrue(state.movie.isFavorite)
+        val movie = resultMovie(sut)
+        assertTrue(movie.isFavorite)
     }
 
     @Test
     fun `marks as watched and removes from watchlist`() = runTest {
-        repository.setMovies(
-            listOf(TestMovieData.MOVIE_1.copy(isInWatchlist = true))
-        )
-        val sut = createViewModel(movieId = 1)
+        movieInWatchList(MOVIE_1)
+        val sut = createViewModel()
         advanceUntilIdle()
 
-        sut.onMarkAsWatched(currentIsWatched = false)
+        sut.onMarkAsWatched()
         advanceUntilIdle()
 
-        val state = sut.state.value as MovieDetailsScreenState.Content
-        assertTrue(state.movie.isWatched)
-        assertTrue(!state.movie.isInWatchlist)
+        val movie = resultMovie(sut)
+        assertTrue(movie.isWatched)
+        assertFalse(movie.isInWatchlist)
     }
 
     @Test
     fun `toggles watchlist`() = runTest {
-        repository.setMovies(listOf(TestMovieData.MOVIE_1))
-        val sut = createViewModel(movieId = 1)
+        movieExists(MOVIE_1)
+        val sut = createViewModel()
         advanceUntilIdle()
 
-        sut.onToggleWatchlist(currentIsInWatchlist = false)
+        sut.onToggleWatchlist()
         advanceUntilIdle()
 
-        val state = sut.state.value as MovieDetailsScreenState.Content
-        assertTrue(state.movie.isInWatchlist)
+        val movie = resultMovie(sut)
+        assertTrue(movie.isInWatchlist)
     }
+
+    private fun movieExists(movie: Movie) {
+        repository.setMovies(listOf(movie))
+    }
+
+    private fun movieInWatchList(movie: Movie) {
+        repository.setMovies(listOf(movie.copy(isInWatchlist = true)))
+    }
+
+    private fun repositoryThrows(exception: Exception) {
+        repository.setShouldThrow(exception)
+    }
+
+    private fun resultMovie(viewModel: MovieDetailsViewModel): Movie =
+        (viewModel.state.value as MovieDetailsScreenState.Content).movie
 }

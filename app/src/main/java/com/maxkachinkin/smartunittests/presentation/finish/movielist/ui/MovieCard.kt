@@ -35,7 +35,7 @@ fun MovieCard(
     movie: Movie,
     onMovieClick: (Int) -> Unit,
     onToggleFavorite: (Int, Boolean) -> Unit,
-    onToggleWatchlist: (Int, Boolean) -> Unit,
+    onToggleWatchlist: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -109,7 +109,7 @@ fun MovieCard(
                     }
 
                     IconButton(
-                        onClick = { onToggleWatchlist(movie.id, movie.isInWatchlist) },
+                        onClick = { onToggleWatchlist(movie.id) },
                         modifier = Modifier.size(32.dp)
                     ) {
                         Icon(

@@ -41,10 +41,10 @@ class MovieDetailsViewModel(
         }
     }
 
-    fun onMarkAsWatched(currentIsWatched: Boolean) {
+    fun onMarkAsWatched() {
         viewModelScope.launch {
             try {
-                markAsWatchedUseCase(movieId, currentIsWatched)
+                markAsWatchedUseCase(movieId)
                 loadDetails()
             } catch (e: Exception) {
                 Log.e(TAG, "onMarkAsWatched($movieId) failed: ${e.message}", e)
@@ -52,10 +52,10 @@ class MovieDetailsViewModel(
         }
     }
 
-    fun onToggleWatchlist(currentIsInWatchlist: Boolean) {
+    fun onToggleWatchlist() {
         viewModelScope.launch {
             try {
-                toggleWatchlistUseCase(movieId, currentIsInWatchlist)
+                toggleWatchlistUseCase(movieId)
                 loadDetails()
             } catch (e: Exception) {
                 Log.e(TAG, "onToggleWatchlist($movieId) failed: ${e.message}", e)

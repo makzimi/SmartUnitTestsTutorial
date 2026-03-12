@@ -23,11 +23,6 @@ import org.junit.Test
 
 /**
  * Same repository tests but using MockK.
- *
- * Compare with MovieRepositoryWithFakesTest:
- * - More setup noise (coEvery, every, coJustRun)
- * - Tests verify interactions, not just outcomes
- * - More tightly coupled to implementation details
  */
 class MovieRepositoryWithMocksTest {
 
@@ -62,7 +57,7 @@ class MovieRepositoryWithMocksTest {
 
         assertEquals(3, result.movies.size)
         assertFalse(result.isFromCache)
-        // With mocks we verify implementation details
+        // implementation details
         coVerify { localCacheDataSource.saveMovies(TestMovieData.MOVIE_DTOS) }
         coVerify { localCacheDataSource.saveGenres(TestMovieData.GENRE_LIST) }
     }
@@ -101,7 +96,7 @@ class MovieRepositoryWithMocksTest {
         sut.setFavorite(1, true)
 
         coVerify { userStateDataSource.setFavorite(1, true) }
-        // With mocks we end up verifying implementation details like cache clearing
+        // verifying implementation details like cache clearing
         coVerify { inMemoryCacheDataSource.clear() }
     }
 }

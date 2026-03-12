@@ -100,7 +100,7 @@ class MovieListViewModelTest {
         sut = createViewModel()
         advanceUntilIdle()
 
-        sut.onMarkAsWatched(movieId = 1, currentIsWatched = false)
+        sut.onMarkAsWatched(movieId = 1)
         advanceUntilIdle()
 
         val state = sut.state.value as MovieListScreenState.Content

@@ -56,8 +56,8 @@ fun MovieDetailsScreenContent(
             MovieDetailsContent(
                 movie = currentState.movie,
                 onToggleFavorite = { viewModel.onToggleFavorite(currentState.movie.isFavorite) },
-                onMarkAsWatched = { viewModel.onMarkAsWatched(currentState.movie.isWatched) },
-                onToggleWatchlist = { viewModel.onToggleWatchlist(currentState.movie.isInWatchlist) }
+                onMarkAsWatched = { viewModel.onMarkAsWatched() },
+                onToggleWatchlist = { viewModel.onToggleWatchlist() }
             )
         }
 

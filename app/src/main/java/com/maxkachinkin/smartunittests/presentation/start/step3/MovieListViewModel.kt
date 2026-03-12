@@ -44,11 +44,6 @@ class MovieListViewModel(
         loadMovies()
     }
 
-    fun onSortOptionSelected(sortOption: MovieSortOption) {
-        currentSortOption = sortOption
-        loadMovies()
-    }
-
     fun onToggleFavorite(movieId: Int, currentIsFavorite: Boolean) {
         viewModelScope.launch {
             userStateDataSource.setFavorite(movieId, !currentIsFavorite)
@@ -66,9 +61,11 @@ class MovieListViewModel(
         }
     }
 
-    fun onToggleWatchlist(movieId: Int, currentIsInWatchlist: Boolean) {
+    fun onToggleWatchlist(movieId: Int) {
         viewModelScope.launch {
-            userStateDataSource.setInWatchlist(movieId, !currentIsInWatchlist)
+            val currentState = userStateDataSource.getAllStates()[movieId]
+            val isInWatchlist = currentState?.isInWatchlist ?: false
+            userStateDataSource.setInWatchlist(movieId, !isInWatchlist)
             inMemoryCacheDataSource.clear()
             loadMovies()
         }

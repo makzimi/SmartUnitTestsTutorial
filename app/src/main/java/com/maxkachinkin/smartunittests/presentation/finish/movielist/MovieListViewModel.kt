@@ -20,7 +20,6 @@ private const val TAG = "MovieWatchlist"
 class MovieListViewModel @javax.inject.Inject constructor(
     private val getMoviesForCategoryUseCase: GetMoviesForCategoryUseCase,
     private val toggleFavoriteUseCase: ToggleFavoriteUseCase,
-    private val markAsWatchedUseCase: MarkAsWatchedUseCase,
     private val toggleWatchlistUseCase: ToggleWatchlistUseCase
 ) : ViewModel() {
 
@@ -55,21 +54,10 @@ class MovieListViewModel @javax.inject.Inject constructor(
         }
     }
 
-    fun onMarkAsWatched(movieId: Int, currentIsWatched: Boolean) {
+    fun onToggleWatchlist(movieId: Int) {
         viewModelScope.launch {
             try {
-                markAsWatchedUseCase(movieId, currentIsWatched)
-                loadMovies()
-            } catch (e: Exception) {
-                Log.e(TAG, "onMarkAsWatched($movieId) failed: ${e.message}", e)
-            }
-        }
-    }
-
-    fun onToggleWatchlist(movieId: Int, currentIsInWatchlist: Boolean) {
-        viewModelScope.launch {
-            try {
-                toggleWatchlistUseCase(movieId, currentIsInWatchlist)
+                toggleWatchlistUseCase(movieId)
                 loadMovies()
             } catch (e: Exception) {
                 Log.e(TAG, "onToggleWatchlist($movieId) failed: ${e.message}", e)

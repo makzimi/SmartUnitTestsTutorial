@@ -48,9 +48,6 @@ class BuildMovieScreenUseCaseTest {
 
     @Test
     fun `execute returns content when remote data is available`() = runTest {
-        // Look at how much setup we need — this is painful.
-        // We need to mock the entire data flow, including caching behavior,
-        // genre resolution, and user state merging.
         every { inMemoryCacheDataSource.getMovies() } returns null
         coEvery { remoteDataSource.getPopularMovies() } returns TestMovieData.MOVIE_DTOS
         coEvery { localCacheDataSource.getGenres() } returns null
@@ -61,21 +58,18 @@ class BuildMovieScreenUseCaseTest {
 
         val result = sut.execute(MovieCategory.ALL, MovieSortOption.DEFAULT)
 
-        // Even the assertion is complex — we're testing too much at once
         assertTrue(result is MovieListScreenState.Content)
         val content = result as MovieListScreenState.Content
         assertEquals(3, content.movies.size)
         assertTrue(content.movies[0].isFavorite)
         assertEquals("Action", content.movies[0].genreNames[0])
 
-        // We also end up verifying implementation details
         coVerify { localCacheDataSource.saveMovies(any()) }
         coVerify { localCacheDataSource.saveGenres(any()) }
     }
 
     @Test
     fun `execute returns only favorites when category is FAVORITES`() = runTest {
-        // Same overwhelming setup, repeated for every test
         every { inMemoryCacheDataSource.getMovies() } returns null
         coEvery { remoteDataSource.getPopularMovies() } returns TestMovieData.MOVIE_DTOS
         coEvery { localCacheDataSource.getGenres() } returns TestMovieData.GENRE_LIST
@@ -92,7 +86,6 @@ class BuildMovieScreenUseCaseTest {
 
     @Test
     fun `execute returns empty when no movies match category`() = runTest {
-        // Yet again, extensive setup just to test filtering
         every { inMemoryCacheDataSource.getMovies() } returns null
         coEvery { remoteDataSource.getPopularMovies() } returns TestMovieData.MOVIE_DTOS
         coEvery { localCacheDataSource.getGenres() } returns TestMovieData.GENRE_LIST
@@ -107,7 +100,6 @@ class BuildMovieScreenUseCaseTest {
     fun `execute returns error when everything fails`() = runTest {
         every { inMemoryCacheDataSource.getMovies() } returns null
         coEvery { remoteDataSource.getPopularMovies() } throws RuntimeException("Network error")
-        // Even error testing requires understanding the full data flow
 
         val result = sut.execute(MovieCategory.ALL, MovieSortOption.DEFAULT)
 
@@ -116,7 +108,6 @@ class BuildMovieScreenUseCaseTest {
 
     @Test
     fun `execute sorts by rating`() = runTest {
-        // This test knows way too much about internal data flow
         every { inMemoryCacheDataSource.getMovies() } returns null
         coEvery { remoteDataSource.getPopularMovies() } returns TestMovieData.MOVIE_DTOS
         coEvery { localCacheDataSource.getGenres() } returns TestMovieData.GENRE_LIST
